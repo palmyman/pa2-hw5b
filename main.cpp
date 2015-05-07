@@ -20,7 +20,6 @@ using namespace std;
 
 class CResult {
 public:
-
     CResult(const string & name,
             unsigned int studentID,
             const string & test,
@@ -35,7 +34,13 @@ public:
 };
 #endif /* __PROGTEST__ */
 
+struct CStudent {
+    
+};
+
 class CExam {
+    
+    
 public:
     static const int SORT_NONE = 0;
     static const int SORT_ID = 1;
@@ -51,10 +56,29 @@ public:
     list<CResult> ListTest(const string & test,
             int sortBy) const;
     set<string> ListMissing(const string & test) const;
-
-private:
-    // todo
 };
+
+bool CExam::Load(istream& cardMap) {
+    return false;
+}
+
+bool CExam::Register(const string& cardID, const string& test) {
+    return false;
+}
+
+bool CExam::Assess(unsigned int studentID, const string& test, int result) {
+    
+}
+
+list<CResult> CExam::ListTest(const string& test, int sortBy) const {
+    list<CResult> returnList;
+    return returnList;
+}
+
+set<string> CExam::ListMissing(const string& test) const {
+    set<string> returnSet;
+    return returnSet;
+}
 
 #ifndef __PROGTEST__
 
