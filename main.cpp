@@ -38,7 +38,7 @@ public:
 struct CStudent {
     int id;
     string name;
-    set<string> cards;
+    map<string, int> cards;
 };
 
 class CExam {
@@ -84,7 +84,7 @@ CStudent CExam::parseLine(string line) {
         cout << newCardId << endl;
         //        if(allCards.find(newCardId) != allCards.end())
         //            return NULL;
-        newStudent.cards.insert(newCardId);
+        newStudent.cards.insert(make_pair(newCardId, newStudent.id));
         if (delimiterIndex == (unsigned) string::npos) break;
     }
     cout << "----------------" << endl;
@@ -106,7 +106,7 @@ bool CExam::Load(istream& cardMap) {
         
         //check for duplicity card
         map<string, int>::iterator cardIt;
-        for (cardIt = newStudent.cards.begin(); cardIt != newStudent.cards.end(); i++) {
+        for (cardIt = newStudent.cards.begin(); cardIt != newStudent.cards.end(); cardIt++) {
             if (newCards.find(cardIt->first) != newCards.end() ||
                     allCards.find(cardIt->first) != allCards.end()) {
                 cout << "duplicity card" << endl;
