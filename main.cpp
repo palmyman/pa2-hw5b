@@ -35,6 +35,8 @@ public:
 };
 #endif /* __PROGTEST__ */
 
+typedef multimap<string, CResult> examsMultimap;
+
 struct CStudent {
     int id;
     string name;
@@ -45,7 +47,7 @@ struct CStudent {
 class CExam {
     map<int, CStudent> studentRegister;
     map<string, int> allCards;
-    multimap<string, CResult> exams;
+    examsMultimap exams;
     CStudent parseLine(string);
 
 public:
@@ -139,7 +141,31 @@ bool CExam::Register(const string& cardID, const string& test) {
 }
 
 bool CExam::Assess(unsigned int studentID, const string& test, int result) {
-
+    if(exams.count(test) == 0) {
+        cout << "test does not exist" << endl;
+        return false;
+    }
+    if(studentRegister.count(studentID) == 0) {
+        cout << "student does not exist" << endl;
+        return false;
+    }
+    if(studentRegister.find(studentID)->second.examsRegisteredTo.count(test) == 0) {
+        cout << "student is not registered to this test" << endl;
+        return false;
+    }
+    
+    pair<examsMultimap::iterator, examsMultimap::iterator> range = exams.equal_range(test);
+    examsMultimap::iterator it;
+    for(it = range.first; it != range.second; it++) {
+        if(it->second.m_StudentID == studentID) {
+            if(it->second.m_Result != -1) {
+                cout << "student have already been classified" << endl;
+                return 0;
+            }
+            it->second.m_Result = result;
+            break;
+        }
+    }
 }
 
 list<CResult> CExam::ListTest(const string& test, int sortBy) const {
