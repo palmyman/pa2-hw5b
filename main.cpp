@@ -203,6 +203,13 @@ list<CResult> CExam::ListTest(const string& test, int sortBy) const {
 
 set<string> CExam::ListMissing(const string& test) const {
     set<string> returnSet;
+    for(map<int, CStudent>::const_iterator it = studentRegister.begin(); it != studentRegister.end(); it++) {
+        if(it->second.examsRegisteredTo.find(test) != it->second.examsRegisteredTo.end()) {
+            if(it->second.examsRegisteredTo.find(test)->second == false) {
+                returnSet.insert(it->second.name);
+            }
+        }
+    }
     return returnSet;
 }
 
