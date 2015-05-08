@@ -20,6 +20,7 @@ using namespace std;
 
 class CResult {
 public:
+
     CResult(const string & name,
             unsigned int studentID,
             const string & test,
@@ -35,12 +36,16 @@ public:
 #endif /* __PROGTEST__ */
 
 struct CStudent {
-    
+    int id;
+    string name;
+    set<string> cards;
 };
 
 class CExam {
-    map<string, CStudent> studentRegister;
-    
+    map<int, CStudent> studentRegister;
+    map<string, int> allCards;
+    CStudent parseLine(string);
+
 public:
     static const int SORT_NONE = 0;
     static const int SORT_ID = 1;
@@ -58,8 +63,65 @@ public:
     set<string> ListMissing(const string & test) const;
 };
 
+CStudent CExam::parseLine(string line) {
+    CStudent newStudent;
+    unsigned delimiterIndex = line.find_first_of(":");
+    newStudent.id = atoi(line.substr(0, delimiterIndex).c_str());
+    line = line.substr(delimiterIndex + 1);
+
+    delimiterIndex = line.find_first_of(":");
+    newStudent.name = line.substr(0, delimiterIndex);
+    line = line.substr(delimiterIndex + 1);
+
+    cout << newStudent.id << endl;
+    cout << newStudent.name << endl;
+
+    while (line.length() > 1) {
+        delimiterIndex = line.find_first_of(", ");
+        string newCardId = line.substr(0, delimiterIndex);
+        line = line.substr(delimiterIndex + 1);
+        if (delimiterIndex == 0) continue;
+        cout << newCardId << endl;
+        //        if(allCards.find(newCardId) != allCards.end())
+        //            return NULL;
+        newStudent.cards.insert(newCardId);
+        if (delimiterIndex == (unsigned) string::npos) break;
+    }
+    cout << "----------------" << endl;
+    return newStudent;
+}
+
 bool CExam::Load(istream& cardMap) {
-    return false;
+    map<int, CStudent> newStudentRegister;
+    map<string, int> newCards;
+    string line;
+    while (getline(cardMap, line)) {
+        CStudent newStudent = parseLine(line);
+        //check for duplicity student
+        if (newStudentRegister.find(newStudent.id) != newStudentRegister.end() ||
+                studentRegister.find(newStudent.id) != studentRegister.end()) {
+            cout << "student already exists!" << endl;
+            return false;
+        }
+        
+        //check for duplicity card
+        map<string, int>::iterator cardIt;
+        for (cardIt = newStudent.cards.begin(); cardIt != newStudent.cards.end(); i++) {
+            if (newCards.find(cardIt->first) != newCards.end() ||
+                    allCards.find(cardIt->first) != allCards.end()) {
+                cout << "duplicity card" << endl;
+                return false;
+            }
+        }
+
+        newStudentRegister.insert(make_pair(newStudent.id, newStudent));
+        newCards.insert(newStudent.cards.begin(), newStudent.cards.end());
+    }
+
+    studentRegister.insert(newStudentRegister.begin(), newStudentRegister.end());
+    allCards.insert(newCards.begin(), newCards.end());
+
+    return true;
 }
 
 bool CExam::Register(const string& cardID, const string& test) {
@@ -67,7 +129,7 @@ bool CExam::Register(const string& cardID, const string& test) {
 }
 
 bool CExam::Assess(unsigned int studentID, const string& test, int result) {
-    
+
 }
 
 list<CResult> CExam::ListTest(const string& test, int sortBy) const {
@@ -104,6 +166,10 @@ int main(void) {
             "654321:Nowak Jane: 62wtsergtsdfg34\n"
             "456789:Nowak Jane: okjer834d34\n"
             "987:West Peter Thomas:sdswertcvsgncse\n");
+
+    m.Load(iss);
+    return 0;
+
     assert(m . Load(iss));
 
     assert(m . Register("62wtsergtsdfg34", "PA2 - #1"));
