@@ -157,6 +157,7 @@ bool CExam::Assess(unsigned int studentID, const string& test, int result) {
     CResult resultRecord(student.name, student.id, test, result);
     classifiedStudents.push_back(resultRecord);
     studentRegister.find(studentID)->second.examsRegisteredTo.find(test)->second = true;
+    return true;
 }
 
 list<CResult> CExam::ListTest(const string& test, int sortBy) const {
