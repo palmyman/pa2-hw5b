@@ -41,13 +41,14 @@ struct CStudent {
     int id;
     string name;
     map<string, int> cards;
-    set<string> examsRegisteredTo;
+    map<string, bool> examsRegisteredTo;
 };
 
 class CExam {
     map<int, CStudent> studentRegister;
     map<string, int> allCards;
-    examsMultimap exams;
+    //examsMultimap exams;
+    list<CResult> classifiedStudents;
     CStudent parseLine(string);
 
 public:
@@ -123,53 +124,80 @@ bool CExam::Load(istream& cardMap) {
 }
 
 bool CExam::Register(const string& cardID, const string& test) {
-    if(allCards.find(cardID) == allCards.end()) {
+    if (allCards.find(cardID) == allCards.end()) {
         cout << "student not found" << endl;
         return false;
     }
     int studentId = allCards.find(cardID)->second;
     CStudent student = studentRegister.find(studentId)->second;
-    if(student.examsRegisteredTo.find(test) != student.examsRegisteredTo.end()) {
+    if (student.examsRegisteredTo.find(test) != student.examsRegisteredTo.end()) {
         cout << "student have already registered to this exam" << endl;
         return false;
     }
-    CResult result(student.name, student.id, test, -1);
-    exams.insert(make_pair(test, result));
-    studentRegister.find(studentId)->second.examsRegisteredTo.insert(test);
-    
+    studentRegister.find(studentId)->second.examsRegisteredTo.insert(make_pair(test, false));
+
     return true;
 }
 
 bool CExam::Assess(unsigned int studentID, const string& test, int result) {
-    if(exams.count(test) == 0) {
-        cout << "test does not exist" << endl;
-        return false;
-    }
-    if(studentRegister.count(studentID) == 0) {
+    if (studentRegister.count(studentID) == 0) {
         cout << "student does not exist" << endl;
         return false;
     }
-    if(studentRegister.find(studentID)->second.examsRegisteredTo.count(test) == 0) {
-        cout << "student is not registered to this test" << endl;
+    CStudent student = studentRegister.find(studentID)->second;
+    if (student.examsRegisteredTo.count(test) == 0) {
+        cout << "student is not registered to this test or test does not exist" << endl;
         return false;
     }
-    
-    pair<examsMultimap::iterator, examsMultimap::iterator> range = exams.equal_range(test);
-    examsMultimap::iterator it;
-    for(it = range.first; it != range.second; it++) {
-        if(it->second.m_StudentID == studentID) {
-            if(it->second.m_Result != -1) {
-                cout << "student have already been classified" << endl;
-                return 0;
-            }
-            it->second.m_Result = result;
-            break;
-        }
+    if (student.examsRegisteredTo.find(test)->second) {
+        cout << "student have already been classified" << endl;
+        return false;
     }
+
+    CResult resultRecord(student.name, student.id, test, result);
+    classifiedStudents.push_back(resultRecord);
+    studentRegister.find(studentID)->second.examsRegisteredTo.find(test)->second = true;
 }
 
 list<CResult> CExam::ListTest(const string& test, int sortBy) const {
     list<CResult> returnList;
+    if (sortBy == SORT_NONE) {
+        for (list<CResult>::const_iterator it = classifiedStudents.begin(); it != classifiedStudents.end(); it++) {
+            if (it->m_Test == test) {
+                returnList.push_back(*it);
+            }
+        }
+    } else if (sortBy == SORT_ID) {
+        map<int, CResult> container;
+        for (list<CResult>::const_iterator it = classifiedStudents.begin(); it != classifiedStudents.end(); it++) {
+            if (it->m_Test == test) {
+                container.insert(make_pair(it->m_StudentID, *it));
+            }
+        }
+        for (map<int, CResult>::const_iterator it = container.begin(); it != container.end(); it++) {
+            returnList.push_back(it->second);
+        }
+    } else if (sortBy == SORT_NAME) {
+        map<string, CResult> container;
+        for (list<CResult>::const_iterator it = classifiedStudents.begin(); it != classifiedStudents.end(); it++) {
+            if (it->m_Test == test) {
+                container.insert(make_pair(it->m_Name, *it));
+            }
+        }
+        for (map<string, CResult>::const_iterator it = container.begin(); it != container.end(); it++) {
+            returnList.push_back(it->second);
+        }
+    } else if (sortBy == SORT_RESULT) {
+        map<int, CResult> container;
+        for (list<CResult>::const_iterator it = classifiedStudents.begin(); it != classifiedStudents.end(); it++) {
+            if (it->m_Test == test) {
+                container.insert(make_pair(it->m_Result, *it));
+            }
+        }
+        for (map<int, CResult>::const_iterator it = container.begin(); it != container.end(); it++) {
+            returnList.push_front(it->second);
+        }
+    }
     return returnList;
 }
 
