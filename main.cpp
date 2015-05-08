@@ -39,7 +39,7 @@ struct CStudent {
 };
 
 class CExam {
-    
+    map<string, CStudent> studentRegister;
     
 public:
     static const int SORT_NONE = 0;
