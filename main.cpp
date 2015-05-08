@@ -39,11 +39,13 @@ struct CStudent {
     int id;
     string name;
     map<string, int> cards;
+    set<string> examsRegisteredTo;
 };
 
 class CExam {
     map<int, CStudent> studentRegister;
     map<string, int> allCards;
+    multimap<string, CResult> exams;
     CStudent parseLine(string);
 
 public:
@@ -53,13 +55,9 @@ public:
     static const int SORT_RESULT = 3;
 
     bool Load(istream & cardMap);
-    bool Register(const string & cardID,
-            const string & test);
-    bool Assess(unsigned int studentID,
-            const string & test,
-            int result);
-    list<CResult> ListTest(const string & test,
-            int sortBy) const;
+    bool Register(const string & cardID, const string & test);
+    bool Assess(unsigned int studentID, const string & test, int result);
+    list<CResult> ListTest(const string & test, int sortBy) const;
     set<string> ListMissing(const string & test) const;
 };
 
@@ -82,8 +80,6 @@ CStudent CExam::parseLine(string line) {
         line = line.substr(delimiterIndex + 1);
         if (delimiterIndex == 0) continue;
         cout << newCardId << endl;
-        //        if(allCards.find(newCardId) != allCards.end())
-        //            return NULL;
         newStudent.cards.insert(make_pair(newCardId, newStudent.id));
         if (delimiterIndex == (unsigned) string::npos) break;
     }
@@ -103,7 +99,7 @@ bool CExam::Load(istream& cardMap) {
             cout << "student already exists!" << endl;
             return false;
         }
-        
+
         //check for duplicity card
         map<string, int>::iterator cardIt;
         for (cardIt = newStudent.cards.begin(); cardIt != newStudent.cards.end(); cardIt++) {
@@ -125,7 +121,21 @@ bool CExam::Load(istream& cardMap) {
 }
 
 bool CExam::Register(const string& cardID, const string& test) {
-    return false;
+    if(allCards.find(cardID) == allCards.end()) {
+        cout << "student not found" << endl;
+        return false;
+    }
+    int studentId = allCards.find(cardID)->second;
+    CStudent student = studentRegister.find(studentId)->second;
+    if(student.examsRegisteredTo.find(test) != student.examsRegisteredTo.end()) {
+        cout << "student have already registered to this exam" << endl;
+        return false;
+    }
+    CResult result(student.name, student.id, test, -1);
+    exams.insert(make_pair(test, result));
+    studentRegister.find(studentId)->second.examsRegisteredTo.insert(test);
+    
+    return true;
 }
 
 bool CExam::Assess(unsigned int studentID, const string& test, int result) {
@@ -166,9 +176,6 @@ int main(void) {
             "654321:Nowak Jane: 62wtsergtsdfg34\n"
             "456789:Nowak Jane: okjer834d34\n"
             "987:West Peter Thomas:sdswertcvsgncse\n");
-
-    m.Load(iss);
-    return 0;
 
     assert(m . Load(iss));
 
