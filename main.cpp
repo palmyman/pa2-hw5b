@@ -73,12 +73,13 @@ CStudent CExam::parseLine(string line) {
     delimiterIndex = line.find_first_of(":");
     newStudent.name = line.substr(0, delimiterIndex);
     line = line.substr(delimiterIndex + 1);
+    line.erase(remove_if(line.begin(), line.end(), ::isspace), line.end());
 
     cout << newStudent.id << endl;
     cout << newStudent.name << endl;
 
-    while (line.length() > 1) {
-        delimiterIndex = line.find_first_of(", ");
+    while (true) {
+        delimiterIndex = line.find_first_of(",");
         string newCardId = line.substr(0, delimiterIndex);
         line = line.substr(delimiterIndex + 1);
         if (delimiterIndex == 0) continue;
