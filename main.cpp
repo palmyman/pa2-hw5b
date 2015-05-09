@@ -163,51 +163,28 @@ bool CExam::Assess(unsigned int studentID, const string& test, int result) {
 
 list<CResult> CExam::ListTest(const string& test, int sortBy) const {
     list<CResult> returnList;
-    if (sortBy == SORT_NONE) {
-        for (list<CResult>::const_iterator it = classifiedStudents.begin(); it != classifiedStudents.end(); it++) {
-            if (it->m_Test == test) {
-                returnList.push_back(*it);
-            }
+    for (list<CResult>::const_iterator it = classifiedStudents.begin(); it != classifiedStudents.end(); it++) {
+        if (it->m_Test == test) {
+            returnList.push_back(*it);
         }
-    } else if (sortBy == SORT_ID) {
-        map<int, CResult> container;
-        for (list<CResult>::const_iterator it = classifiedStudents.begin(); it != classifiedStudents.end(); it++) {
-            if (it->m_Test == test) {
-                container.insert(make_pair(it->m_StudentID, *it));
-            }
-        }
-        for (map<int, CResult>::const_iterator it = container.begin(); it != container.end(); it++) {
-            returnList.push_back(it->second);
-        }
+    }
+    
+    //sort the returnList by parameter
+    if (sortBy == SORT_ID) {
+        returnList.sort([](CResult lhs, CResult rhs) {return lhs.m_StudentID < rhs.m_StudentID;});
     } else if (sortBy == SORT_NAME) { //TODO does not work because names are not unique
-        map<string, CResult> container;
-        for (list<CResult>::const_iterator it = classifiedStudents.begin(); it != classifiedStudents.end(); it++) {
-            if (it->m_Test == test) {
-                container.insert(make_pair(it->m_Name, *it));
-            }
-        }
-        for (map<string, CResult>::const_iterator it = container.begin(); it != container.end(); it++) {
-            returnList.push_back(it->second);
-        }
+        returnList.sort([](CResult lhs, CResult rhs) {return lhs.m_Name < rhs.m_Name;});
     } else if (sortBy == SORT_RESULT) { //TODO does not work because results are not unique
-        map<int, CResult> container;
-        for (list<CResult>::const_iterator it = classifiedStudents.begin(); it != classifiedStudents.end(); it++) {
-            if (it->m_Test == test) {
-                container.insert(make_pair(it->m_Result, *it));
-            }
-        }
-        for (map<int, CResult>::const_iterator it = container.begin(); it != container.end(); it++) {
-            returnList.push_front(it->second);
-        }
+        returnList.sort([](CResult lhs, CResult rhs) {return lhs.m_Result > rhs.m_Result;});
     }
     return returnList;
 }
 
 set<string> CExam::ListMissing(const string& test) const {
     set<string> returnSet;
-    for(map<int, CStudent>::const_iterator it = studentRegister.begin(); it != studentRegister.end(); it++) {
-        if(it->second.examsRegisteredTo.find(test) != it->second.examsRegisteredTo.end()) {
-            if(it->second.examsRegisteredTo.find(test)->second == false) {
+    for (map<int, CStudent>::const_iterator it = studentRegister.begin(); it != studentRegister.end(); it++) {
+        if (it->second.examsRegisteredTo.find(test) != it->second.examsRegisteredTo.end()) {
+            if (it->second.examsRegisteredTo.find(test)->second == false) {
                 returnSet.insert(it->second.name);
             }
         }
