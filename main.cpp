@@ -83,7 +83,7 @@ CStudent CExam::parseLine(string line) {
         string newCardId = line.substr(0, delimiterIndex);
         line = line.substr(delimiterIndex + 1);
         if (delimiterIndex == 0) continue;
-        cout << newCardId << endl;
+        cout << "<" << newCardId << ">" << endl;
         newStudent.cards.insert(make_pair(newCardId, newStudent.id));
         if (delimiterIndex == (unsigned) string::npos) break;
     }
@@ -238,7 +238,8 @@ int main(void) {
     iss . str("123456:Smith John:er34252456hjsd2451451, 1234151asdfe5123416, asdjklfhq3458235\n"
             "654321:Nowak Jane: 62wtsergtsdfg34\n"
             "456789:Nowak Jane: okjer834d34\n"
-            "987:West Peter Thomas:sdswertcvsgncse\n");
+            "987:West Peter Thomas:sdswertcvsgncse\n"
+            "46:Lubo: a\n");
 
     assert(m . Load(iss));
 
