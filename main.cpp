@@ -179,7 +179,7 @@ list<CResult> CExam::ListTest(const string& test, int sortBy) const {
         for (map<int, CResult>::const_iterator it = container.begin(); it != container.end(); it++) {
             returnList.push_back(it->second);
         }
-    } else if (sortBy == SORT_NAME) {
+    } else if (sortBy == SORT_NAME) { //TODO does not work because names are not unique
         map<string, CResult> container;
         for (list<CResult>::const_iterator it = classifiedStudents.begin(); it != classifiedStudents.end(); it++) {
             if (it->m_Test == test) {
@@ -189,7 +189,7 @@ list<CResult> CExam::ListTest(const string& test, int sortBy) const {
         for (map<string, CResult>::const_iterator it = container.begin(); it != container.end(); it++) {
             returnList.push_back(it->second);
         }
-    } else if (sortBy == SORT_RESULT) {
+    } else if (sortBy == SORT_RESULT) { //TODO does not work because results are not unique
         map<int, CResult> container;
         for (list<CResult>::const_iterator it = classifiedStudents.begin(); it != classifiedStudents.end(); it++) {
             if (it->m_Test == test) {
